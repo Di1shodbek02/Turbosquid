@@ -15,3 +15,7 @@ class CategoryAPIView(APIView):
         category_serializer = CategorySerializer(category, many=True)
 
         return Response(category_serializer.data)
+
+
+class UpdateDestroyAPIView(APIView):
+    permission_classes = ()

@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     # third party
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -82,8 +81,12 @@ WSGI_APPLICATION = 'Turbosquid.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'turbosquid',
+        'USER': 'postgres',
+        'PASSWORD': 1212,
+        'HOST': 'localhost',
+        'PORT': 5432
     }
 }
 
