@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="turbosquid@localhost" uuid="4ca29efe-3a4a-4a18-bc46-b5a3a7cd4d77">
+    <data-source source="LOCAL" name="tesla@localhost" uuid="91305a98-d938-4909-967d-8e9b47f0e22f">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/turbosquid</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/tesla</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

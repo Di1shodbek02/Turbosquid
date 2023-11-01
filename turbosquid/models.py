@@ -6,6 +6,14 @@ from django.core.validators import MinValueValidator
 User = get_user_model()
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=150)
+
+
 class Category(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
@@ -47,6 +55,10 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+
 class ShoppingCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -59,4 +71,21 @@ class ShoppingCart(models.Model):
 class ProductLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+
+class Author(models.Model):
+    name = models.CharField(max_length=150)
+    bio = models.TextField()
+    website = models.URLField()
+
+
+class AuthorProfile(models.Model):
+    author = models.OneToOneField(Author, on_delete=models.CASCADE)
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+
