@@ -3,6 +3,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from django.contrib.auth.views import get_user_model
 from django.core.validators import MinValueValidator
 
+
 User = get_user_model()
 
 
@@ -37,6 +38,10 @@ class Product(MPTTModel):
 class ShoppingCart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)], default=1
+    )
+    creates_at = models.DateTimeField(auto_now_add=True)
 
 
 class Image(models.Model):
@@ -88,4 +93,13 @@ class Transaction(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email
+
 

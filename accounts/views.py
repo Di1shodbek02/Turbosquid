@@ -10,6 +10,7 @@ User = get_user_model()
 
 
 class RegisterAPIView(APIView):
+
     def post(self, request):
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
@@ -20,11 +21,11 @@ class RegisterAPIView(APIView):
 
         if password1 == password2:
             if User.objects.filter(email=email).exists():
-                return Response({'success': False, "message": 'This email already exists!'}, status=400)
+                return Response({'success': False, 'message': 'This email already exists!'}, status=400)
             if User.objects.filter(username=username).exists():
-                return Response({"success": False, "message": 'This username already exists!'}, status=400)
+                return Response({'success': False, 'message': 'This username already exists!'}, status=400)
             else:
-                user = User.objects.create_user(
+                User.objects.create_user(
                     first_name=first_name,
                     last_name=last_name,
                     email=email,
@@ -32,9 +33,8 @@ class RegisterAPIView(APIView):
                     password=password1
                 )
                 return Response({'success': True, 'message': 'Successfully registered'})
-
         else:
-            return Response({"success": False, "message": 'Password are not same!'}, status=400)
+            return Response({'success': False, 'message': 'Passwords are not same!'}, status=400)
 
 
 class LogoutAPIView(APIView):

@@ -40,6 +40,6 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
-    path('', include("turbosquid.urls")),
-    path('tesla/api/', include("accounts.urls"))
+    path('tesla/v1/', include("turbosquid.urls")),
+    path('accounts/', include("accounts.urls"))
 ]

@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Category, Product
+from .models import Category, Product, Subscriber
+from .tasks import sent_email
 
 
 class CategorySerializer(ModelSerializer):
@@ -10,14 +11,27 @@ class CategorySerializer(ModelSerializer):
 
 
 class ProductSerializer(ModelSerializer):
+    category = CategorySerializer(many=True)
+
     class Meta:
         model = Product
         fields = "__all__"
 
 
-class CategoryProductSerializer(ModelSerializer):
-    product = ProductSerializer(many=True)
+class ProductSerializerForPost(ModelSerializer):
+    def save(self, validated_data):
+        product = Product.objects.create(**validated_data)
+        subscribers = Subscriber.objects.all()
+        for subscriber in subscribers:
+            sent_email().delay(subscriber.email, validated_data['title'], validated_data['description'])
+            return product
 
     class Meta:
-        model = Category
+        model = Product
         fields = "__all__"
+
+
+class SubscriberSerializer(ModelSerializer):
+    class Meta:
+        model = Subscriber
+        fields = '__all__'
