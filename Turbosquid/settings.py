@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     # custom
     'turbosquid',
     'accounts',
+    'one_id',
 
     # third party
     'rest_framework',
@@ -101,11 +103,11 @@ SWAGGER_SETTINGS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRES_NAME'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': os.environ.get('POSTGRES_PORT'),
+        'NAME': 'turbosquid',
+        'USER': 'postgres',
+        'PASSWORD': 1212,
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
