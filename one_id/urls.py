@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import OneIDAuthAPIView
+from .views import OneIDAuthAPIView, OneIDCodeAPIVIEW
 
 urlpatterns = [
-    path('code', OneIDAuthAPIView.as_view(), name='one_code'),
+    path('login', OneIDAuthAPIView.as_view(), name='one_login'),
+    path('code', OneIDCodeAPIVIEW.as_view(), name='one_code'),
 ]
