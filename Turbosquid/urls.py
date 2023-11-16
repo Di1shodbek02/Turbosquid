@@ -42,5 +42,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('turbosquid/v1/', include("turbosquid.urls")),
     path('accounts/', include("accounts.urls")),
-    path('oneid/', include("one_id.urls")),
 ]

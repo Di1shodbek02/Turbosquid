@@ -3,6 +3,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from django.contrib.auth.views import get_user_model
 from django.core.validators import MinValueValidator
 
+from .tasks import sent_email
 
 User = get_user_model()
 
@@ -30,6 +31,13 @@ class Product(MPTTModel):
     price = models.FloatField()
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, validated_data):
+        subscribers = Subscriber.objects.all()
+        for subscriber in subscribers:
+            sent_email.delay(subscriber.email, validated_data)
+        return super(**validated_data).save()
+
 
     def __str__(self):
         return self.title
@@ -64,15 +72,6 @@ class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
 
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)], default=1
-    )
-    creates_at = models.DateTimeField(auto_now_add=True)
-
-
 class ProductLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -101,5 +100,3 @@ class Subscriber(models.Model):
 
     def __str__(self):
         return self.email
-
-

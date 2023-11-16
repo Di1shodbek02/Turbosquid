@@ -5,7 +5,7 @@ import logging
 
 @shared_task
 def sent_email(email, title, description):
-    logging.info(f"Product>>>>{title}")
+    # logging.info(f"Product>>>>{title}")
     send_mail(
         subject=title,
         from_email='From 127.0.0.1',

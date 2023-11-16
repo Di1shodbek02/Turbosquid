@@ -1,8 +1,8 @@
 from django.contrib.auth.views import get_user_model
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, ListAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, ListAPIView, GenericAPIView
+
 from accounts.permission import IsAdminPermission
 from .models import Product
 from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer
