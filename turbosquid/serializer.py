@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Category, Product, Subscriber
+from .models import Category, Product, Subscriber, ShoppingCart
 from .tasks import sent_email
 
 
@@ -19,7 +19,7 @@ class ProductSerializer(ModelSerializer):
 
 
 class ProductSerializerForPost(ModelSerializer):
-    def create(self, **validated_data):
+    def create(self, validated_data):
         subscribers = Subscriber.objects.all()
         for subscriber in subscribers:
             sent_email.delay(subscriber.email, validated_data['title'], validated_data['price'])
@@ -33,4 +33,10 @@ class ProductSerializerForPost(ModelSerializer):
 class SubscriberSerializer(ModelSerializer):
     class Meta:
         model = Subscriber
+        fields = '__all__'
+
+
+class AddToCartSerializer(ModelSerializer):
+    class Meta:
+        model = ShoppingCart
         fields = '__all__'

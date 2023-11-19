@@ -110,8 +110,8 @@ SWAGGER_SETTINGS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'turbosquid',
         'USER': 'postgres',
+        'NAME': 'turbosquid',
         'PASSWORD': 1212,
         'HOST': 'localhost',
         'PORT': 5432,

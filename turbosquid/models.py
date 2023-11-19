@@ -12,10 +12,6 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=150)
-
-
 class Category(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
