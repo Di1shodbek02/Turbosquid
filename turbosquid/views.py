@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.permission import IsAdminPermission
-from .models import Product
-from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer
+from .models import Product, Category
+from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer, CategorySerializer
 
 User = get_user_model()
 
@@ -73,7 +73,13 @@ class UpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class AddProductAPIView(CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializerForPost
-    permission_classes = (IsAdminPermission,)
+    permission_classes = (IsAuthenticated,)
+
+
+class AddCategoryAPIView(CreateAPIView):
+    queryset = Category.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CategorySerializer
 
 
 class ProductAPIView(ListAPIView):

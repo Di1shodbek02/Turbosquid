@@ -19,25 +19,17 @@ class Tag(models.Model):
 class Category(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
 
-class Product(MPTTModel):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+class Product(models.Model):
+    parent = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=100)
     price = models.FloatField()
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def save(self, validated_data):
-        subscribers = Subscriber.objects.all()
-        for subscriber in subscribers:
-            sent_email.delay(subscriber.email, validated_data)
-        return super(**validated_data).save()
-
 
     def __str__(self):
         return self.title
@@ -50,11 +42,6 @@ class ShoppingCart(models.Model):
         validators=[MinValueValidator(1)], default=1
     )
     creates_at = models.DateTimeField(auto_now_add=True)
-
-
-class Image(models.Model):
-    image = models.URLField()
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
 
 class Files(models.Model):

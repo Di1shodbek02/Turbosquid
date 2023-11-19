@@ -4,13 +4,13 @@ import logging
 
 
 @shared_task
-def sent_email(email, title, description):
+def sent_email(email, title, price):
     # logging.info(f"Product>>>>{title}")
     send_mail(
         subject=title,
         from_email='From 127.0.0.1',
         recipient_list=[email],
-        message=description,
+        message=price,
         fail_silently=True
     )
 

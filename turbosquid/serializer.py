@@ -7,7 +7,7 @@ from .tasks import sent_email
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        exclude = ['parent']
 
 
 class ProductSerializer(ModelSerializer):
@@ -19,16 +19,15 @@ class ProductSerializer(ModelSerializer):
 
 
 class ProductSerializerForPost(ModelSerializer):
-    def save(self, validated_data):
-        product = Product.objects.create(**validated_data)
+    def create(self, **validated_data):
         subscribers = Subscriber.objects.all()
         for subscriber in subscribers:
-            sent_email().delay(subscriber.email, validated_data['title'], validated_data['description'])
-            return product
+            sent_email.delay(subscriber.email, validated_data['title'], validated_data['price'])
+        return Product.objects.create(**validated_data)
 
     class Meta:
         model = Product
-        fields = "__all__"
+        exclude = ['parent']
 
 
 class SubscriberSerializer(ModelSerializer):
