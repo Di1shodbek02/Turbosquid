@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+from django.core.checks import templates
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -85,6 +86,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Turbosquid.wsgi.application'
 
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': 'postgres',
+        'NAME': 'turbosquid',
+        'PASSWORD': 1212,
+        'HOST': 'localhost',
+        'PORT': 5432,
+    }
+}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': os.environ.get('DJANGO_DB_NAME'),
+#         'USER': os.environ.get('DJANGO_DB_USER'),
+#         'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
+#         'HOST': 'localhost',
+#         'PORT': 5432
+#     }
+# }
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -102,30 +127,6 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization',
             'in': 'header'
         }
-    }
-}
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'USER': 'postgres',
-#         'NAME': 'turbosquid',
-#         'PASSWORD': 1212,
-#         'HOST': 'localhost',
-#         'PORT': 5432,
-#     }
-# }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DJANGO_DB_NAME'),  # os.environ.get('DJANGO_DB_NAME'),
-        'USER': os.environ.get('DJANGO_DB_USER'),
-        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
-        'HOST': os.environ.get('DJANGO_DB_HOST'),
-        'PORT': os.environ.get('DJANGO_DB_PORT')
     }
 }
 
@@ -190,6 +191,10 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+LANGUAGES = (
+    ('en', 'English'),
+    ('ru', 'Russian')
+)
 
 TIME_ZONE = 'UTC'
 
