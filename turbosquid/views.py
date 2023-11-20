@@ -5,9 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permission import IsAdminPermission
-from .models import Product, Category, ShoppingCart, Comment
+from .models import Product, Category, ShoppingCart, Comment, ProductLike
 from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer, CategorySerializer, \
-    AddToCartSerializer
+    AddToCartSerializer, ProductLikeSerializer
 
 User = get_user_model()
 
@@ -21,8 +21,9 @@ class CategoryAPIView(APIView):
         return Response(category_serializer.data)
 
 
-class ProductAPIView(APIView):
+class ProductAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
+    serializer_class = ProductSerializer
 
     def get(self, request):
         products = Product.objects.all().order_by('-created_at')
@@ -41,23 +42,19 @@ class AddProductAPIView(GenericAPIView):
         product_serializer = ProductSerializerForPost(data=data)
         if not product_serializer.is_valid(raise_exception=True):
             product_serializer.save()
-        else:
             return Response({'success': False, 'message': 'This product already exists'}, status=400)
         return Response(product_serializer.data)
 
 
-class AddCategoryAPIView(APIView):
-    permission_classes = (IsAuthenticated, IsAdminPermission,)
+class AddCategoryAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CategorySerializer
 
     def post(self, request):
-        request.data._mutable = True
-        data = request.data
-        data['user_id'] = request.user.id
-        category_serializer = CategorySerializer(data=data)
-        if not category_serializer.is_valid(raise_exception=True):
-            category_serializer.save()
-        else:
-            return Response({'success': False, 'message': 'This category already exists'}, status=400)
+
+        category_serializer = CategorySerializer(data=request.data)
+        category_serializer.is_valid(raise_exception=True)
+        category_serializer.save()
         return Response(category_serializer.data)
 
 
@@ -139,7 +136,7 @@ class AddCommentAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ()
 
-    def post(self, request, pk):
+    def post(self, request):
         description = request.POST.get('description')
         user_id = request.POST.get('user_id')
         product_id = request.POST.get('product_id')
@@ -171,6 +168,24 @@ class UpdateDestroyCartAPIView(GenericAPIView):
         except Exception as e:
             return Response({'success': False, 'message': str(e)}, status=400)
         return Response({'success': True, 'message': 'Delete product'}, status=200)
+
+
+class ProductLikeAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProductLikeSerializer
+
+    def post(self, request):
+        user = request.POST.get('user_id')
+        product = request.POST.get('product_id')
+        try:
+            like = ProductLike.objects.create(
+                user=user,
+                product=product
+            )
+            like.save()
+        except Exception as e:
+            return Response({'success': False, 'message': str(e)}, status=400)
+        return Response({'success': True, 'message': 'Successfully added like'})
 
 # class UpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 #     queryset = Product.objects.all()

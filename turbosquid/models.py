@@ -21,7 +21,7 @@ class Category(MPTTModel):
 
 
 class Product(models.Model):
-    parent = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     price = models.FloatField()
     description = models.TextField()

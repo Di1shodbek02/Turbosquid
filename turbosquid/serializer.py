@@ -1,13 +1,13 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Category, Product, Subscriber, ShoppingCart
+from .models import Category, Product, Subscriber, ShoppingCart, ProductLike
 from .tasks import sent_email
 
 
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
-        exclude = ['parent']
+        fields = '__all__'
 
 
 class ProductSerializer(ModelSerializer):
@@ -15,7 +15,7 @@ class ProductSerializer(ModelSerializer):
 
     class Meta:
         model = Product
-        fields = "__all__"
+        fields = '__all__'
 
 
 class ProductSerializerForPost(ModelSerializer):
@@ -27,7 +27,7 @@ class ProductSerializerForPost(ModelSerializer):
 
     class Meta:
         model = Product
-        exclude = ['parent']
+        fields = '__all__'
 
 
 class SubscriberSerializer(ModelSerializer):
@@ -39,4 +39,10 @@ class SubscriberSerializer(ModelSerializer):
 class AddToCartSerializer(ModelSerializer):
     class Meta:
         model = ShoppingCart
+        fields = '__all__'
+
+
+class ProductLikeSerializer(ModelSerializer):
+    class Meta:
+        model = ProductLike
         fields = '__all__'
