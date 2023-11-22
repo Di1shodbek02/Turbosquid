@@ -47,7 +47,7 @@ class AddProductAPIView(GenericAPIView):
 
 
 class AddCategoryAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAdminPermission,)
     serializer_class = CategorySerializer
 
     def post(self, request):
