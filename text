@@ -60,26 +60,24 @@ volumes:
   redis_data:
 
 
-
-
-
-
 # Dockerfile
 
- FROM python:3.11-alpine
+FROM python:3.11-alpine
 
 WORKDIR /app
 
 COPY . .
 
-COPY entrypoint.sh /app/entrypoint.sh
+#COPY entrypoint.sh /app/entrypoint.sh
 RUN pip install --upgrade pip
 RUN pip install -r req.txt
 
-RUN chmod +x /app/entrypoint.sh
-RUN sed -i 's/\r$//g' /app/entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+RUN sed -i 's/\r$//g' ./entrypoint.sh
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
+
+
 
 
 # entrypoint.sh
@@ -89,7 +87,7 @@ if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."
 
-    while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
+    while ! nc -z $SQL_HOST $SQL_PORT; do
       sleep 0.1
     done
 
@@ -97,3 +95,44 @@ then
 fi
 
 exec "$@"
+
+
+
+
+
+.env:
+DB_NAME=turbosquid
+DB_USER=postgres
+DB_PASSWORD=1212
+DB_HOST=db
+DB_PORT=5432
+
+
+
+
+
+
+
+# API lar
+# class UpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializerForPost
+#     permission_classes = (IsAdminPermission,)
+
+
+# class AddProductAPIView(CreateAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializerForPost
+#     permission_classes = (IsAuthenticated,)
+
+
+# class AddCategoryAPIView(CreateAPIView):
+#     queryset = Category.objects.all()
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = CategorySerializer
+
+
+# class ProductAPIView(ListAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (IsAuthenticated,)

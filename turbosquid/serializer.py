@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import Category, Product, Subscriber, ShoppingCart, ProductLike
+from .models import Category, Product, Subscriber, ShoppingCart, ProductLike, Comment
 from .tasks import sent_email
 
 
@@ -45,4 +45,10 @@ class AddToCartSerializer(ModelSerializer):
 class ProductLikeSerializer(ModelSerializer):
     class Meta:
         model = ProductLike
+        fields = '__all__'
+
+
+class CommentSerializer(ModelSerializer):
+    class Meta:
+        model = Comment
         fields = '__all__'

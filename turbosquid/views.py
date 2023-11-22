@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from accounts.permission import IsAdminPermission
 from .models import Product, Category, ShoppingCart, Comment, ProductLike
 from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer, CategorySerializer, \
-    AddToCartSerializer, ProductLikeSerializer
+    AddToCartSerializer, ProductLikeSerializer, CommentSerializer
 
 User = get_user_model()
 
@@ -27,7 +27,20 @@ class ProductAPIView(GenericAPIView):
 
     def get(self, request):
         products = Product.objects.all().order_by('-created_at')
-        product_serializer = ProductSerializer(products, many=True)
+        product_serializer = ProductSerializer(products, many=True, context={'request': request})
+
+        user_id = request.user.id
+
+        for product_data in product_serializer.data:
+            product_id = product_data['id']
+            likes_count = ProductLike.objects.filter(product_id=product_id, is_like=True).count()
+            dislikes_count = ProductLike.objects.filter(product_id=product_id, is_like=False).count()
+            product_data['likes'] = likes_count
+            product_data['dislikes'] = dislikes_count
+
+            product_data['user_liked'] = ProductLike.objects.filter(product_id=product_id, user_id=user_id, is_like=True).exists()
+            product_data['user_disliked'] = ProductLike.objects.filter(product_id=product_id, user_id=user_id, is_like=False).exists()
+
         return Response(product_serializer.data)
 
 
@@ -35,14 +48,12 @@ class AddProductAPIView(GenericAPIView):
     permission_classes = (IsAdminPermission,)
     serializer_class = ProductSerializerForPost
 
-    def post(self, request):
-        request.data._mutable = True
-        data = request.data
-        data['user_id'] = request.user.id
-        product_serializer = ProductSerializerForPost(data=data)
-        if not product_serializer.is_valid(raise_exception=True):
-            product_serializer.save()
-            return Response({'success': False, 'message': 'This product already exists'}, status=400)
+    def post(self, request, format=None): # noqa
+        mutable_data = request.data.copy()
+        mutable_data['user_id'] = request.user.id
+        product_serializer = ProductSerializerForPost(data=mutable_data)
+        product_serializer.is_valid(raise_exception=True)
+        product_serializer.save()
         return Response(product_serializer.data)
 
 
@@ -58,37 +69,19 @@ class AddCategoryAPIView(GenericAPIView):
         return Response(category_serializer.data)
 
 
-class UpdateDestroyProductAPIView(APIView):
+class UpdateDestroyProductAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAdminPermission,)
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializerForPost
 
-    def get_object(self, pk):
-        return Product.objects.get(pk=pk)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
-    def put(self, request, pk):
-        try:
-            product = self.get_object(pk)
-            data = ProductSerializerForPost(product, data=request.data)
-            data.is_valid(raise_exception=True)
-            data.save()
-            product.save()
-        except Exception as e:
-            return Response({"success": False, "message": e}, status=400)
-        return Response({"success": True})
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
-    def patch(self, request, pk):
-        try:
-            product = self.get_object(pk)
-            data = ProductSerializerForPost(product, data=request.data, partial=True)
-            data.is_valid(raise_exception=True)
-            data.save()
-            product.save()
-        except Exception as e:
-            return Response({"success": False, "message": e}, status=400)
-        return Response({"success": True})
-
-    def delete(self, request, pk):
-        self.get_object(pk)
-        return Response(status=204)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 class SubscriberAPIView(GenericAPIView):
@@ -134,23 +127,29 @@ class AddToCartAPIView(GenericAPIView):
 
 class AddCommentAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = ()
+    serializer_class = CommentSerializer
 
-    def post(self, request):
-        description = request.POST.get('description')
-        user_id = request.POST.get('user_id')
-        product_id = request.POST.get('product_id')
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        product_id = self.kwargs.get('product_id')
 
         try:
-            comment = Comment.objects.create(
-                description=description,
-                user_id=user_id,
-                product_id=product_id
-            )
-            comment.save()
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({'success': False, 'message': 'Product not found'}, status=404)
+
+        request.data['user'] = user.id
+        request.data['product'] = product.id
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            serializer.save()
         except Exception as e:
             return Response({'success': False, 'message': str(e)}, status=400)
-        return Response({'success': True, 'message': 'Successfully added comment!'}, status=200)
+
+        return Response({'success': True, 'message': 'Successfully added comment!', 'data': serializer.data}, status=201)
 
 
 class UpdateDestroyCartAPIView(GenericAPIView):
@@ -175,37 +174,30 @@ class ProductLikeAPIView(GenericAPIView):
     serializer_class = ProductLikeSerializer
 
     def post(self, request):
-        user = request.POST.get('user_id')
-        product = request.POST.get('product_id')
+        user_id = request.POST.get('user_id')
+        product_id = request.POST.get('product_id')
+
         try:
             like = ProductLike.objects.create(
-                user=user,
-                product=product
+                user_id=user_id,
+                product_id=product_id
             )
+
+            product = Product.objects.get(id=product_id)
+            if like.is_like:
+                product.likes += 1
+            else:
+                product.likes -= 1
+
             like.save()
+            product.save()
+
         except Exception as e:
             return Response({'success': False, 'message': str(e)}, status=400)
-        return Response({'success': True, 'message': 'Successfully added like'})
 
-# class UpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializerForPost
-#     permission_classes = (IsAdminPermission,)
+        return Response({'success': True, 'message': 'Successfully added like/dislike'})
 
 
-# class AddProductAPIView(CreateAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializerForPost
-#     permission_classes = (IsAuthenticated,)
 
 
-# class AddCategoryAPIView(CreateAPIView):
-#     queryset = Category.objects.all()
-#     permission_classes = (IsAuthenticated,)
-#     serializer_class = CategorySerializer
 
-
-# class ProductAPIView(ListAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     permission_classes = (IsAuthenticated,)
