@@ -52,11 +52,6 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class ProductLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-
 class Author(models.Model):
     name = models.CharField(max_length=150)
     bio = models.TextField()

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import ProductAPIView, AddProductAPIView, SubscriberAPIView, AddCategoryAPIView, \
-    AddToCartAPIView, AddCommentAPIView, UpdateDestroyProductAPIView, ProductLikeAPIView
+    AddToCartAPIView, AddCommentAPIView, UpdateDestroyProductAPIView
 
 urlpatterns = [
     path('add-cart', AddToCartAPIView.as_view(), name='add_cart'),
@@ -11,5 +11,4 @@ urlpatterns = [
     path('subscriber', SubscriberAPIView.as_view(), name="subscriber"),
     path('add-comments', AddCommentAPIView.as_view(), name='add_comments'),
     path('update-product/<int:pk>', UpdateDestroyProductAPIView.as_view(), name='update_product'),
-    path('product-like', ProductLikeAPIView.as_view(), name='product_like'),
 ]

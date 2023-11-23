@@ -5,9 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permission import IsAdminPermission
-from .models import Product, Category, ShoppingCart, Comment, ProductLike
+from .models import Product, Category, ShoppingCart, Comment
 from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer, CategorySerializer, \
-    AddToCartSerializer, ProductLikeSerializer, CommentSerializer
+    AddToCartSerializer, CommentSerializer
 
 User = get_user_model()
 
@@ -28,19 +28,6 @@ class ProductAPIView(GenericAPIView):
     def get(self, request):
         products = Product.objects.all().order_by('-created_at')
         product_serializer = ProductSerializer(products, many=True, context={'request': request})
-
-        user_id = request.user.id
-
-        for product_data in product_serializer.data:
-            product_id = product_data['id']
-            likes_count = ProductLike.objects.filter(product_id=product_id, is_like=True).count()
-            dislikes_count = ProductLike.objects.filter(product_id=product_id, is_like=False).count()
-            product_data['likes'] = likes_count
-            product_data['dislikes'] = dislikes_count
-
-            product_data['user_liked'] = ProductLike.objects.filter(product_id=product_id, user_id=user_id, is_like=True).exists()
-            product_data['user_disliked'] = ProductLike.objects.filter(product_id=product_id, user_id=user_id, is_like=False).exists()
-
         return Response(product_serializer.data)
 
 
@@ -169,33 +156,33 @@ class UpdateDestroyCartAPIView(GenericAPIView):
         return Response({'success': True, 'message': 'Delete product'}, status=200)
 
 
-class ProductLikeAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ProductLikeSerializer
-
-    def post(self, request):
-        user_id = request.POST.get('user_id')
-        product_id = request.POST.get('product_id')
-
-        try:
-            like = ProductLike.objects.create(
-                user_id=user_id,
-                product_id=product_id
-            )
-
-            product = Product.objects.get(id=product_id)
-            if like.is_like:
-                product.likes += 1
-            else:
-                product.likes -= 1
-
-            like.save()
-            product.save()
-
-        except Exception as e:
-            return Response({'success': False, 'message': str(e)}, status=400)
-
-        return Response({'success': True, 'message': 'Successfully added like/dislike'})
+# class ProductLikeAPIView(GenericAPIView):
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = ProductLikeSerializer
+#
+#     def post(self, request):
+#         user_id = request.POST.get('user_id')
+#         product_id = request.POST.get('product_id')
+#
+#         try:
+#             like = ProductLike.objects.create(
+#                 user_id=user_id,
+#                 product_id=product_id
+#             )
+#
+#             product = Product.objects.get(id=product_id)
+#             if like.is_like:
+#                 product.likes += 1
+#             else:
+#                 product.likes -= 1
+#
+#             like.save()
+#             product.save()
+#
+#         except Exception as e:
+#             return Response({'success': False, 'message': str(e)}, status=400)
+#
+#         return Response({'success': True, 'message': 'Successfully added like/dislike'})
 
 
 
