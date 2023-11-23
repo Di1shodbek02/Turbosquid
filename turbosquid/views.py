@@ -1,13 +1,15 @@
 from django.contrib.auth.views import get_user_model
+from drf_yasg.utils import swagger_auto_schema
+from elasticsearch_dsl import Search
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, ListAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permission import IsAdminPermission
-from .models import Product, Category, ShoppingCart, Comment
+from .models import Product, Category, ShoppingCart
 from .serializer import ProductSerializer, ProductSerializerForPost, SubscriberSerializer, CategorySerializer, \
-    AddToCartSerializer, CommentSerializer
+    AddToCartSerializer, QuerySerializer
 
 User = get_user_model()
 
@@ -32,10 +34,10 @@ class ProductAPIView(GenericAPIView):
 
 
 class AddProductAPIView(GenericAPIView):
-    permission_classes = (IsAdminPermission,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = ProductSerializerForPost
 
-    def post(self, request, format=None): # noqa
+    def post(self, request, format=None):  # noqa
         mutable_data = request.data.copy()
         mutable_data['user_id'] = request.user.id
         product_serializer = ProductSerializerForPost(data=mutable_data)
@@ -45,11 +47,10 @@ class AddProductAPIView(GenericAPIView):
 
 
 class AddCategoryAPIView(GenericAPIView):
-    permission_classes = (IsAdminPermission,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = CategorySerializer
 
     def post(self, request):
-
         category_serializer = CategorySerializer(data=request.data)
         category_serializer.is_valid(raise_exception=True)
         category_serializer.save()
@@ -57,7 +58,7 @@ class AddCategoryAPIView(GenericAPIView):
 
 
 class UpdateDestroyProductAPIView(RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAdminPermission,)
+    permission_classes = (IsAuthenticated,)
     queryset = Product.objects.all()
     serializer_class = ProductSerializerForPost
 
@@ -88,18 +89,15 @@ class AddToCartAPIView(GenericAPIView):
 
     def post(self, request):
         count = request.POST.get('count')
-        user_id = request.user.id
         product_id = request.POST.get('product_id')
 
         try:
-            user = User.objects.get(pk=user_id)
             product = Product.objects.get(pk=product_id)
-            cart_product = ShoppingCart.objects.filter(user=user, product=product)
+            cart_product = ShoppingCart.objects.filter(product=product)
 
             if not cart_product:
                 cart_product = ShoppingCart.objects.create(
                     count=count,
-                    user=user,
                     product=product,
                 )
                 cart_product.save()
@@ -110,33 +108,6 @@ class AddToCartAPIView(GenericAPIView):
         except Exception as e:
             return Response({'success': False, 'message': str(e)}, status=400)
         return Response({'success': True, 'message': 'Successfully added!'}, status=200)
-
-
-class AddCommentAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = CommentSerializer
-
-    def post(self, request, *args, **kwargs):
-        user = request.user
-        product_id = self.kwargs.get('product_id')
-
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return Response({'success': False, 'message': 'Product not found'}, status=404)
-
-        request.data['user'] = user.id
-        request.data['product'] = product.id
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        try:
-            serializer.save()
-        except Exception as e:
-            return Response({'success': False, 'message': str(e)}, status=400)
-
-        return Response({'success': True, 'message': 'Successfully added comment!', 'data': serializer.data}, status=201)
 
 
 class UpdateDestroyCartAPIView(GenericAPIView):
@@ -156,35 +127,12 @@ class UpdateDestroyCartAPIView(GenericAPIView):
         return Response({'success': True, 'message': 'Delete product'}, status=200)
 
 
-# class ProductLikeAPIView(GenericAPIView):
-#     permission_classes = (IsAuthenticated,)
-#     serializer_class = ProductLikeSerializer
-#
-#     def post(self, request):
-#         user_id = request.POST.get('user_id')
-#         product_id = request.POST.get('product_id')
-#
-#         try:
-#             like = ProductLike.objects.create(
-#                 user_id=user_id,
-#                 product_id=product_id
-#             )
-#
-#             product = Product.objects.get(id=product_id)
-#             if like.is_like:
-#                 product.likes += 1
-#             else:
-#                 product.likes -= 1
-#
-#             like.save()
-#             product.save()
-#
-#         except Exception as e:
-#             return Response({'success': False, 'message': str(e)}, status=400)
-#
-#         return Response({'success': True, 'message': 'Successfully added like/dislike'})
+class SearchAPIView(GenericAPIView):
+    serializer_class = ProductSerializer
 
-
-
-
-
+    @swagger_auto_schema(query_serializer=QuerySerializer) # noqa
+    def get(self, request):
+        query = request.query_params.get('q', '')
+        search = Search(index='turbosquid').query('multi_match', query=query, fields=('title', 'description'))  # noqa
+        results = [hit.to_dict() for hit in search.execute()]
+        return Response(results)

@@ -16,6 +16,8 @@ from datetime import timedelta
 from django.core.checks import templates
 from dotenv import load_dotenv
 
+from elasticsearch_dsl import connections
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'dotenv',
+    'django_elasticsearch_dsl',
 ]
 
 MIDDLEWARE = [
@@ -89,26 +92,26 @@ WSGI_APPLICATION = 'Turbosquid.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'postgres',
-        'NAME': 'turbosquid',
-        'PASSWORD': 1212,
-        'HOST': 'localhost',
-        'PORT': 5432,
-    }
-}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('DJANGO_DB_NAME'),
-#         'USER': os.environ.get('DJANGO_DB_USER'),
-#         'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
-#         'HOST': os.environ.get('DJANGO_DB_HOST'),
-#         'PORT': os.environ.get('DJANGO_DB_PORT'),
+#         'USER': 'postgres',
+#         'NAME': 'turbosquid',
+#         'PASSWORD': 1212,
+#         'HOST': 'localhost',
+#         'PORT': 5432,
 #     }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DJANGO_DB_NAME'),
+        'USER': os.environ.get('DJANGO_DB_USER'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
+        'HOST': os.environ.get('DJANGO_DB_HOST'),
+        'PORT': os.environ.get('DJANGO_DB_PORT'),
+    }
+}
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -125,7 +128,18 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://elasticsearch:9200',
+    },
+}
 
+
+connections.create_connection(hosts=['http://elasticsearch:9200'])
+
+ELASTICSEARCH_INDEX_NAMES = {
+    'turbosquid.ProductDocument': 'turbosquid'
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -145,7 +159,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=40),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -209,8 +223,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_BROKER_URL = 'localhost://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_TIMEZONE = TIME_ZONE
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

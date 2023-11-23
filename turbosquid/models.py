@@ -33,7 +33,6 @@ class Product(models.Model):
 
 class ShoppingCart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     count = models.PositiveIntegerField(
         validators=[MinValueValidator(1)], default=1
     )
@@ -41,25 +40,14 @@ class ShoppingCart(models.Model):
 
 
 class Files(models.Model):
-    file = models.URLField()
+    file = models.FileField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-
-class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    description = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Author(models.Model):
     name = models.CharField(max_length=150)
     bio = models.TextField()
     website = models.URLField()
-
-
-class AuthorProfile(models.Model):
-    author = models.OneToOneField(Author, on_delete=models.CASCADE)
 
 
 class Transaction(models.Model):

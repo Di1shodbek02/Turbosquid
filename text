@@ -80,7 +80,7 @@ ENTRYPOINT ["./entrypoint.sh"]
 
 
 
-# entrypoint.sh
+# entrypoint.sh:
 #!/bin/sh
 
 if [ "$DATABASE" = "postgres" ]
@@ -136,3 +136,38 @@ DB_PORT=5432
 #     queryset = Product.objects.all()
 #     serializer_class = ProductSerializer
 #     permission_classes = (IsAuthenticated,)
+
+
+
+
+
+
+# class ProductLikeAPIView(GenericAPIView):
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = ProductLikeSerializer
+#
+#     def post(self, request):
+#         user_id = request.POST.get('user_id')
+#         product_id = request.POST.get('product_id')
+#
+#         try:
+#             like = ProductLike.objects.create(
+#                 user_id=user_id,
+#                 product_id=product_id
+#             )
+#
+#             product = Product.objects.get(id=product_id)
+#             if like.is_like:
+#                 product.likes += 1
+#             else:
+#                 product.likes -= 1
+#
+#             like.save()
+#             product.save()
+#
+#         except Exception as e:
+#             return Response({'success': False, 'message': str(e)}, status=400)
+#
+#         return Response({'success': True, 'message': 'Successfully added like/dislike'})
+
+

@@ -1,6 +1,7 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.fields import CharField
+from rest_framework.serializers import ModelSerializer, Serializer
 
-from .models import Category, Product, Subscriber, ShoppingCart, Comment
+from .models import Category, Product, Subscriber, ShoppingCart
 from .tasks import sent_email
 
 
@@ -42,7 +43,7 @@ class AddToCartSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class CommentSerializer(ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = '__all__'
+class QuerySerializer(Serializer):
+    q = CharField(required=False)
+
+

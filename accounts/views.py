@@ -38,11 +38,11 @@ class RegisterAPIView(APIView):
 
 
 class LogoutAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    pеrmission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        refresh_token = request.data.get('refresh')
-        token = RefreshToken(refresh_token)
+        rеfresh_token = request.data.get('refresh')
+        token = RefreshToken(rеfresh_token)
         token.blacklist()
         return Response(status=204)
 
