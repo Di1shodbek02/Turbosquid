@@ -36,7 +36,7 @@ class ShoppingCart(models.Model):
     count = models.PositiveIntegerField(
         validators=[MinValueValidator(1)], default=1
     )
-    creates_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)  # Fix the field name
 
 
 class Files(models.Model):

@@ -2,6 +2,11 @@
 version: '3'
 
 services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+    environment:
+      - discovery.type=single-node
+    mem_limit: 2g
   db:
     image: postgres:15.3-alpine
     container_name: db
@@ -58,6 +63,7 @@ services:
 volumes:
   pg_data:
   redis_data:
+
 
 
 # Dockerfile

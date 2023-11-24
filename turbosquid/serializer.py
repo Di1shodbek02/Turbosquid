@@ -1,6 +1,8 @@
+from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer, Serializer
 
+from .documents import ProductDocument
 from .models import Category, Product, Subscriber, ShoppingCart
 from .tasks import sent_email
 
@@ -46,4 +48,13 @@ class AddToCartSerializer(ModelSerializer):
 class QuerySerializer(Serializer):
     q = CharField(required=False)
 
+
+class BlogDocumentSerializer(DocumentSerializer):
+    class Meta:
+        document = ProductDocument
+
+        fields = (
+            'title',
+            'description'
+        )
 

@@ -8,7 +8,8 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install -r req.txt
 
-RUN chmod +x ./entrypoint.sh
-RUN sed -i 's/\r$//g' ./entrypoint.sh
+RUN sed -i 's/\r$//g' /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+
+ENTRYPOINT ["/app/entrypoint.sh"]

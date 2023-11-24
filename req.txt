@@ -12,9 +12,12 @@ coreapi==2.3.3
 coreschema==0.0.4
 Django==4.2.7
 django-elasticsearch-dsl==8.0
+django-elasticsearch-dsl-drf==0.22.5
+django-filter==23.4
 django-js-asset==2.1.0
 django-modeltranslation==0.18.11
 django-mptt==0.15.0
+django-nine==0.2.7
 django-rest-swagger==2.2.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.0
