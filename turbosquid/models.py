@@ -41,7 +41,7 @@ class ShoppingCart(models.Model):
 
 
 class Files(models.Model):
-    file = models.FileField()
+    file = models.FileField(upload_to='pics')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
 
