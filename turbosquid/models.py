@@ -32,6 +32,7 @@ class Product(models.Model):
 
 
 class ShoppingCart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     count = models.PositiveIntegerField(
         validators=[MinValueValidator(1)], default=1

@@ -1,8 +1,6 @@
-from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from .documents import ProductDocument
 from .models import Category, Product, Subscriber, ShoppingCart
 from .tasks import sent_email
 
@@ -14,7 +12,7 @@ class CategorySerializer(ModelSerializer):
 
 
 class ProductSerializer(ModelSerializer):
-    category = CategorySerializer
+    # category = CategorySerializer
 
     class Meta:
         model = Product
@@ -43,18 +41,19 @@ class AddToCartSerializer(ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = '__all__'
+        read_only_fields = ('user',)
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return ShoppingCart.objects.create(user=user, **validated_data)
 
 
 class QuerySerializer(Serializer):
     q = CharField(required=False)
 
 
-class BlogDocumentSerializer(DocumentSerializer):
+class CartSerializer(ModelSerializer):
     class Meta:
-        document = ProductDocument
-
-        fields = (
-            'title',
-            'description'
-        )
-
+        model = ShoppingCart
+        fields = '__all__'
+        read_only_fields = ('user',)
